@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨年2025</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: pink;
+            background-size: cover; /* 确保背景覆盖整个页面 */
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            font-size: 2.5em; /* 调整字体大小 */
+        }
+
+        h1, h2 {
+            margin: 0;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); /* 添加阴影以提高可读性 */
+            display: inline; /* 使 h1 和 h2 在同一行 */
+        }
+
+        h1 {
+            font-size: 3em; /* 调整字体大小 */
+        }
+
+        h2 {
+            font-size: 1.2em; /* 调整字体大小 */
+        }
+
+        .wish-button {
+            position: absolute;
+            top: 75%; /* 向上移动按钮 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            font-size: 1.5em;
+            background-color: #ff6347; /* 番茄色 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .wishes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 2em;
+            display: none; /* 初始隐藏 */
+            text-align: center;
+        }
+
+        .result-message {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 2em;
+            display: none; /* 初始隐藏 */
+        }
+    </style>
+</head>
+<body>
+    <div class="message">
+        <h1>新年快乐，</h1>
+        <h1>燕子</h1>
+        <br>
+        <h2>祝你在新的一年里，</h2>
+        <h2>所愿皆所成！</h2>
+    </div>
+    <button class="wish-button" onclick="getWishes()">许下三个愿望</button>
+    <div class="wishes" id="wishes"></div>
+    <div class="result-message" id="resultMessage">2025，你必定所愿皆所成！！</div>
+    <canvas id="fireworksCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Firework {
+            constructor(x, y, colors) {
+                this.x = x;
+                this.y = y;
+                this.colors = colors;
+                this.particles = [];
+
+                for (let i = 0; i < 100; i++) {
+                    const angle = Math.random() * 2 * Math.PI;
+                    const speed = Math.random() * 3 + 2;
+                    this.particles.push({
+                        x: this.x,
+                        y: this.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        opacity: 1,
+                        size: Math.random() * 3 + 1 // 随机大小
+                    });
+                }
+            }
+
+            update() {
+                this.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.opacity -= 0.02;
+                });
+                this.particles = this.particles.filter(p => p.opacity > 0);
+            }
+
+            draw(ctx) {
+                this.particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${this.colors}, ${p.opacity})`;
+                    ctx.fill();
+                });
+            }
+        }
+
+        const fireworks = [];
+        const colors = [
+            '255, 99, 71', // Red
+            '135, 206, 235', // Sky blue
+            '50, 205, 50', // Lime green
+            '255, 215, 0', // Gold
+        ];
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            fireworks.forEach((firework, index) => {
+                firework.update();
+                firework.draw(ctx);
+                if (firework.particles.length === 0) {
+                    fireworks.splice(index, 1);
+                }
+            });
+
+            if (Math.random() < 0.1) { // 增加烟花出现的频率
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height / 2;
+                const colorIndex = Math.floor(Math.random() * colors.length);
+                fireworks.push(new Firework(x, y, colors[colorIndex]));
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        function getWishes() {
+            const wishes = [];
+            for (let i = 0; i < 3; i++) {
+                const wish = prompt(`请输入第 ${i + 1} 个新年愿望:`);
+                if (wish) {
+                    wishes.push(wish);
+                }
+            }
+            displayWishes(wishes);
+        }
+
+        function displayWishes(wishes) {
+            const wishesDiv = document.getElementById('wishes');
+            wishesDiv.innerHTML = `<h2>🎄 愿望树 🎄</h2>`;
+            wishes.forEach(wish => {
+                wishesDiv.innerHTML += `<p>${wish}</p>`;
+            });
+            wishesDiv.style.display = 'block'; // 显示愿望
+
+            const resultMessage = document.getElementById('resultMessage');
+            resultMessage.style.display = 'block'; // 显示祝福语
+
+            // 隐藏新年祝福
+            document.getElementById('newYearWish').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
